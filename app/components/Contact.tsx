@@ -1,13 +1,40 @@
-"use client";
+"use client"; 
 import { useState } from "react";
 import { useReveal } from "./useReveal";
+import emailjs from "emailjs-com"; // ✅ added
 
 export default function Contact() {
   useReveal();
+
   const [form, setForm] = useState({ name:"", email:"", message:"" });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false); // optional UX
 
-  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); setSent(true); };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    emailjs.send(
+      "service_sm7hzfl",   // 🔴 replace
+      "template_lv2uops",  // 🔴 replace
+      {
+        from_name: form.name,
+        from_email: form.email,
+        message: form.message,
+      },
+      "86IRjQpi6jLYfU0wv"    // 🔴 replace
+    )
+    .then(() => {
+      setSent(true);
+      setLoading(false);
+      setForm({ name:"", email:"", message:"" }); // reset form
+    })
+    .catch((err) => {
+      console.error("EmailJS Error:", err);
+      setLoading(false);
+      alert("Something went wrong. Please try again.");
+    });
+  };
 
   return (
     <section id="contact" style={{ background:"var(--bg)" }}>
@@ -64,23 +91,31 @@ export default function Contact() {
                     <div key={f.key} className="form-group">
                       <label className="form-label">{f.label}</label>
                       <input
-                        type={f.type} placeholder={f.ph} required
+                        type={f.type}
+                        placeholder={f.ph}
+                        required
                         value={form[f.key as "name"|"email"]}
                         onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                         className="form-input"
                       />
                     </div>
                   ))}
+
                   <div className="form-group">
                     <label className="form-label">What&apos;s on your mind?</label>
                     <textarea
                       placeholder="Tell me about what you're building, a role you'd love, or just say hi."
-                      value={form.message} required rows={4}
+                      value={form.message}
+                      required
+                      rows={4}
                       onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
                       className="form-textarea"
                     />
                   </div>
-                  <button type="submit" className="form-submit">Let&apos;s Connect →</button>
+
+                  <button type="submit" className="form-submit" disabled={loading}>
+                    {loading ? "Sending..." : "Let&apos;s Connect →"}
+                  </button>
                 </form>
               </>
             )}
