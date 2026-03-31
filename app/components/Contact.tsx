@@ -114,7 +114,7 @@ export default function Contact() {
                   </div>
 
                   <button type="submit" className="form-submit" disabled={loading}>
-                    {loading ? "Sending..." : "Let&apos;s Connect →"}
+                    {loading ? "Sending..." : "Let Connect →"}
                   </button>
                 </form>
               </>
